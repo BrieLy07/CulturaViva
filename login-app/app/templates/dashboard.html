@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header, footer {
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        header h1 {
+            text-align: center;
+            margin: 0;
+        }
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        main {
+            flex: 1;
+            padding: 20px;
+        }
+        footer p {
+            text-align: center;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>¡Bienvenido!</h1>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Cerrar sesión</a>
+    </header>
+
+    <main>
+        <p style="text-align: left;">Hola {{ username }}</p>
+    </main>
+
+    <footer>
+        <p>2025 Mi Aplicación</p>
+    </footer>
+</body>
+</html>
