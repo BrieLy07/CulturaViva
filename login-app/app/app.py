@@ -53,20 +53,37 @@ def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
-    username = session['username']
-    return render_template('dashboard.html', username=username)
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute('SELECT * FROM users WHERE id = %s', (session['user_id'],))
+    user = cursor.fetchone()
+    conn.close()
+
+    return render_template('dashboard.html', user=user)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        email = request.form['email']
+        phone = request.form['phone']
         username = request.form['username']
         password = request.form['password']
+        confirm_password = request.form['confirm_password']
+
+        if password != confirm_password:
+            return "Las contraseñas no coinciden"
 
         # Hashear la contraseña antes de guardarla
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())  # Usamos bcrypt para generar el hash
+        
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (username, hashed_password))
+        cursor.execute('''
+            INSERT INTO users (first_name, last_name, email, phone, username, password)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        ''', (first_name, last_name, email, phone, username, hashed_password))
         conn.commit()
         conn.close()
 

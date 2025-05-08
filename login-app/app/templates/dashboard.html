@@ -15,6 +15,7 @@
         header, footer {
             padding: 20px;
             background-color: #f0f0f0;
+            position: relative;
         }
         header h1 {
             text-align: center;
@@ -30,6 +31,31 @@
             text-decoration: none;
             border-radius: 5px;
         }
+        .user-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .user-info-panel {
+            display: none;
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+        .user-info-panel p {
+            margin: 5px 0;
+        }
         main {
             flex: 1;
             padding: 20px;
@@ -44,14 +70,30 @@
     <header>
         <h1>¡Bienvenido!</h1>
         <a href="{{ url_for('logout') }}" class="logout-btn">Cerrar sesión</a>
+        <button class="user-btn" onclick="toggleUserInfo()">👤</button>
+        <div class="user-info-panel" id="userInfoPanel">
+            <p><strong>Nombre:</strong> {{ user.first_name }}</p>
+            <p><strong>Apellido:</strong> {{ user.last_name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Teléfono:</strong> {{ user.phone }}</p>
+            <p><strong>Usuario:</strong> {{ user.username }}</p>
+        </div>
     </header>
 
     <main>
-        <p style="text-align: left;">Hola {{ username }}</p>
+        <p style="text-align: left;">Hola {{ user.username }}</p>
+        <p style="text-align: left;">Esta es tu página de inicio.</p>
     </main>
 
     <footer>
         <p>2025 Mi Aplicación</p>
     </footer>
+
+    <script>
+        function toggleUserInfo() {
+            const panel = document.getElementById('userInfoPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
 </body>
 </html>
