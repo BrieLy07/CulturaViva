@@ -1,5 +1,5 @@
 import secrets
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, session
 import mysql.connector
 import os
 import bcrypt
@@ -12,11 +12,9 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 app.config['SESSION_TYPE'] = 'filesystem'
 
-# Clases del modelo
 clases = ['achuar', 'afroecuatoriano', 'cañari', 'cayambis', 'kickwa', 'puruhua', 'salasacas', 'saraguro', 'shuar']
 modelo = load_model("model/modelo_cultural_mobilenetv2.h5")
 
-# ⚠️ Usa el nombre del contenedor MySQL
 def get_db_connection():
     return mysql.connector.connect(
         host="db",
@@ -41,7 +39,6 @@ def login():
         user = cursor.fetchone()
         conn.close()
 
-        # ⚠️ Revisa si la contraseña en DB está hasheada correctamente
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             session['user_id'] = user['id']
             session['username'] = user['username']
@@ -55,13 +52,7 @@ def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT * FROM users WHERE id = %s', (session['user_id'],))
-    user = cursor.fetchone()
-    conn.close()
-
-    return render_template('dashboard.html', user=user)
+    return render_template('dashboard.html', cultura=None, confianza=None)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -78,7 +69,7 @@ def register():
             return "Las contraseñas no coinciden"
 
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        
+
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('''
@@ -99,8 +90,11 @@ def logout():
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
     if 'imagen' not in request.files:
-        return jsonify({'error': 'No se envió imagen'}), 400
+        return render_template('dashboard.html', cultura="No se envió imagen", confianza=None)
 
     imagen = request.files['imagen']
     try:
@@ -109,23 +103,23 @@ def predict():
         img_array = img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0) / 255.0
 
+        # Guardar imagen para previsualización
+        imagen_path = os.path.join("static", "ultima_imagen.png")
+        img.save(imagen_path)
+
         pred = modelo.predict(img_array)
         indice = np.argmax(pred[0])
-        confianza = float(pred[0][indice])
+        confianza = float(pred[0][indice]) * 100
 
-        if confianza < 0.35:
-            return jsonify({
-        "cultura": "Desconocido",
-        "confianza": round(confianza, 2),
-        "mensaje": "La imagen no coincide con ninguna cultura reconocida"
-    })
+        if confianza < 49.0:
+            cultura = "Desconocido"
         else:
-            return jsonify({
-        "cultura": clases[indice],
-        "confianza": round(confianza, 2)
-    })
+            cultura = clases[indice]
+
+        return render_template('dashboard.html', cultura=cultura, confianza=round(confianza, 2))
+
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return render_template('dashboard.html', cultura="Error: " + str(e), confianza=None)
 
 if __name__ == '__main__':
     print("Iniciando servidor Flask...")

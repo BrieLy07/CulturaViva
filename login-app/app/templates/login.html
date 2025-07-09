@@ -3,26 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - Cultura Viva</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="login-container">
-        <h2>Iniciar Sesión</h2>
-        <form method="POST" action="/login">
-            <div class="input-group">
-                <label for="username">Usuario</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="input-group">
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            
-            <button type="submit" class="btn">Entrar</button>
-            <p>           </p>
-            <p>¿No tienes una cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a></p>
-        </form>
+
+    <!-- Encabezado tipo bandera de Ecuador -->
+    <div class="bandera">
+        <div class="franja amarilla"></div>
+        <div class="franja azul"></div>
+        <div class="franja roja"></div>
     </div>
+
+    <div class="contenido">
+        <h1>Bienvenidos a <span class="titulo-app">Cultura Viva</span></h1>
+        <h3 class="subtitulo">Tu App tradición</h3>
+
+        <p class="texto-secundario">¿Ya tienes una cuenta?</p>
+
+        <div class="login-container">
+            <form method="POST" action="/login">
+                <div class="input-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Entrar</button>
+            </form>
+            <p class="registro-texto">¿No tienes una cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a></p>
+        </div>
+    </div>
+
 </body>
 </html>

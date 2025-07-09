@@ -2,96 +2,58 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - Clasificador Cultural</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 2em;
-        }
-        .container {
-            max-width: 500px;
-            margin: auto;
-        }
-        .preview {
-            width: 100%;
-            margin-top: 1em;
-        }
-        .resultado {
-            margin-top: 1em;
-            padding: 1em;
-            background-color: #f2f2f2;
-            border-radius: 5px;
-        }
-        input[type="file"] {
-            margin-top: 1em;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Bienvenido, {{ user.username }}</h2>
-        <p>Sube una imagen para clasificar la cultura indígena:</p>
 
-        <form id="formulario" enctype="multipart/form-data">
-            <input type="file" name="imagen" id="imagen" accept="image/*" required><br>
-            <button type="submit">Clasificar Imagen</button>
-        </form>
-
-        <img id="preview" class="preview" src="" style="display:none;" alt="Vista previa">
-
-        <div class="resultado" id="resultado" style="display:none;">
-            <p><strong>Cultura:</strong> <span id="cultura"></span></p>
-            <p><strong>Confianza:</strong> <span id="confianza"></span></p>
-        </div>
-
-        <p><a href="{{ url_for('logout') }}">Cerrar sesión</a></p>
+    <!-- Franja bandera Ecuador -->
+    <div class="bandera">
+        <div class="franja amarilla"></div>
+        <div class="franja azul"></div>
+        <div class="franja roja"></div>
     </div>
 
-    <script>
-        const form = document.getElementById('formulario');
-        const preview = document.getElementById('preview');
-        const resultado = document.getElementById('resultado');
-        const cultura = document.getElementById('cultura');
-        const confianza = document.getElementById('confianza');
+    <!-- Botón cerrar sesión -->
+    <div class="cerrar-sesion-container">
+        <form method="GET" action="{{ url_for('logout') }}">
+            <button type="submit" class="btn cerrar-sesion-btn">Cerrar Sesión</button>
+        </form>
+    </div>
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+    <!-- Contenido central -->
+    <div class="dashboard-layout">
+        <!-- Columna izquierda -->
+        <div class="dashboard-texto">
+            <h2 class="titulo-app">¿No sabes el nombre de alguna cultura?</h2>
+            <p class="subtitulo">Sube una imagen y nosotros te ayudamos</p>
 
-            const archivo = document.getElementById('imagen').files[0];
-            if (!archivo) return;
+            <form action="{{ url_for('predict') }}" method="POST" enctype="multipart/form-data">
+                <div class="input-group">
+                    <label for="imagen">Selecciona una imagen:</label>
+                    <input type="file" name="imagen" accept="image/*" required>
+                </div>
+                <button type="submit" class="btn">Predecir Imagen</button>
+            </form>
 
-            // Vista previa
-            preview.src = URL.createObjectURL(archivo);
-            preview.style.display = 'block';
+            {% if cultura %}
+                <div class="resultado">
+                    <h3>Resultado:</h3>
+                    <p><strong>Cultura:</strong> {{ cultura }}</p>
+                    {% if confianza %}
+                        <p><strong>Confianza:</strong> {{ confianza }}%</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
 
-            const formData = new FormData();
-            formData.append('imagen', archivo);
+        <!-- Columna derecha -->
+        {% if confianza %}
+        <div class="dashboard-imagen">
+            <img src="{{ url_for('static', filename='ultima_imagen.png') }}" alt="Imagen cargada">
+        </div>
+        {% endif %}
+    </div>
 
-            try {
-                const response = await fetch('/predict', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.error) {
-                    resultado.style.display = 'block';
-                    cultura.textContent = "Error";
-                    confianza.textContent = data.error;
-                } else {
-                    resultado.style.display = 'block';
-                    cultura.textContent = data.cultura;
-                    confianza.textContent = (data.confianza * 100).toFixed(1) + "%";
-                }
-
-            } catch (error) {
-                resultado.style.display = 'block';
-                cultura.textContent = "Error";
-                confianza.textContent = error;
-            }
-        });
-    </script>
 </body>
 </html>

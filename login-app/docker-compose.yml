@@ -1,12 +1,11 @@
-
 services:
   db:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
+      - mysql_data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - mysql_data:/var/lib/mysql  # <--- este volumen persiste los datos
     ports:
       - "3307:3306"
 
@@ -18,3 +17,6 @@ services:
       - db
     environment:
       FLASK_ENV: development
+
+volumes:
+  mysql_data:
