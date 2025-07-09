@@ -113,10 +113,17 @@ def predict():
         indice = np.argmax(pred[0])
         confianza = float(pred[0][indice])
 
-        return jsonify({
-            "cultura": clases[indice],
-            "confianza": round(confianza, 2)
-        })
+        if confianza < 0.35:
+            return jsonify({
+        "cultura": "Desconocido",
+        "confianza": round(confianza, 2),
+        "mensaje": "La imagen no coincide con ninguna cultura reconocida"
+    })
+        else:
+            return jsonify({
+        "cultura": clases[indice],
+        "confianza": round(confianza, 2)
+    })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
