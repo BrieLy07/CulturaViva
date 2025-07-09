@@ -2,98 +2,96 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Dashboard - Clasificador Cultural</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            margin: 2em;
         }
-        header, footer {
-            padding: 20px;
-            background-color: #f0f0f0;
-            position: relative;
+        .container {
+            max-width: 500px;
+            margin: auto;
         }
-        header h1 {
-            text-align: center;
-            margin: 0;
+        .preview {
+            width: 100%;
+            margin-top: 1em;
         }
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: #e74c3c;
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
+        .resultado {
+            margin-top: 1em;
+            padding: 1em;
+            background-color: #f2f2f2;
             border-radius: 5px;
         }
-        .user-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background-color: #3498db;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-        .user-info-panel {
-            display: none;
-            position: absolute;
-            top: 60px;
-            left: 20px;
-            background-color: white;
-            border: 1px solid #ccc;
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 100;
-        }
-        .user-info-panel p {
-            margin: 5px 0;
-        }
-        main {
-            flex: 1;
-            padding: 20px;
-        }
-        footer p {
-            text-align: center;
-            margin: 0;
+        input[type="file"] {
+            margin-top: 1em;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>¡Bienvenido!</h1>
-        <a href="{{ url_for('logout') }}" class="logout-btn">Cerrar sesión</a>
-        <button class="user-btn" onclick="toggleUserInfo()">👤</button>
-        <div class="user-info-panel" id="userInfoPanel">
-            <p><strong>Nombre:</strong> {{ user.first_name }}</p>
-            <p><strong>Apellido:</strong> {{ user.last_name }}</p>
-            <p><strong>Email:</strong> {{ user.email }}</p>
-            <p><strong>Teléfono:</strong> {{ user.phone }}</p>
-            <p><strong>Usuario:</strong> {{ user.username }}</p>
+    <div class="container">
+        <h2>Bienvenido, {{ user.username }}</h2>
+        <p>Sube una imagen para clasificar la cultura indígena:</p>
+
+        <form id="formulario" enctype="multipart/form-data">
+            <input type="file" name="imagen" id="imagen" accept="image/*" required><br>
+            <button type="submit">Clasificar Imagen</button>
+        </form>
+
+        <img id="preview" class="preview" src="" style="display:none;" alt="Vista previa">
+
+        <div class="resultado" id="resultado" style="display:none;">
+            <p><strong>Cultura:</strong> <span id="cultura"></span></p>
+            <p><strong>Confianza:</strong> <span id="confianza"></span></p>
         </div>
-    </header>
 
-    <main>
-        <p style="text-align: left;">Hola {{ user.username }}</p>
-        <p style="text-align: left;">Esta es tu página de inicio.</p>
-    </main>
-
-    <footer>
-        <p>2025 Mi Aplicación</p>
-    </footer>
+        <p><a href="{{ url_for('logout') }}">Cerrar sesión</a></p>
+    </div>
 
     <script>
-        function toggleUserInfo() {
-            const panel = document.getElementById('userInfoPanel');
-            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-        }
+        const form = document.getElementById('formulario');
+        const preview = document.getElementById('preview');
+        const resultado = document.getElementById('resultado');
+        const cultura = document.getElementById('cultura');
+        const confianza = document.getElementById('confianza');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const archivo = document.getElementById('imagen').files[0];
+            if (!archivo) return;
+
+            // Vista previa
+            preview.src = URL.createObjectURL(archivo);
+            preview.style.display = 'block';
+
+            const formData = new FormData();
+            formData.append('imagen', archivo);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    resultado.style.display = 'block';
+                    cultura.textContent = "Error";
+                    confianza.textContent = data.error;
+                } else {
+                    resultado.style.display = 'block';
+                    cultura.textContent = data.cultura;
+                    confianza.textContent = (data.confianza * 100).toFixed(1) + "%";
+                }
+
+            } catch (error) {
+                resultado.style.display = 'block';
+                cultura.textContent = "Error";
+                confianza.textContent = error;
+            }
+        });
     </script>
 </body>
 </html>

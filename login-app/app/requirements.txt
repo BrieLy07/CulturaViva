@@ -2,4 +2,7 @@ flask
 mysql-connector-python
 bcrypt
 flask-session
+tensorflow
+numpy
+pillow
 

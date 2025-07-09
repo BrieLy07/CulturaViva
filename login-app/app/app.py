@@ -2,23 +2,27 @@ import secrets
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 import mysql.connector
 import os
-import bcrypt  # Utilizamos bcrypt en lugar de werkzeug.security
-from werkzeug.security import generate_password_hash  # Si ya estás usando generate_password_hash para otros propósitos
+import bcrypt
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
+from PIL import Image
+import numpy as np
 
 app = Flask(__name__)
-
-# Usamos secrets para generar una clave secreta aleatoria
-app.secret_key = secrets.token_hex(16)  # Genera una clave secreta de 16 bytes en formato hexadecimal
-
-# Configuración de la sesión
+app.secret_key = secrets.token_hex(16)
 app.config['SESSION_TYPE'] = 'filesystem'
 
+# Clases del modelo
+clases = ['achuar', 'afroecuatoriano', 'cañari', 'cayambis', 'kickwa', 'puruhua', 'salasacas', 'saraguro', 'shuar']
+modelo = load_model("model/modelo_cultural_mobilenetv2.h5")
+
+# ⚠️ Usa el nombre del contenedor MySQL
 def get_db_connection():
     return mysql.connector.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", "root"),
-        database=os.getenv("DB_NAME", "login_db")
+        host="db",
+        user="root",
+        password="root",
+        database="login_db"
     )
 
 @app.route('/')
@@ -37,15 +41,13 @@ def login():
         user = cursor.fetchone()
         conn.close()
 
-        # Verificación de la contraseña usando bcrypt
+        # ⚠️ Revisa si la contraseña en DB está hasheada correctamente
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-            # Guardamos la información del usuario en la sesión
             session['user_id'] = user['id']
             session['username'] = user['username']
             return redirect(url_for('dashboard'))
         else:
             return "Credenciales inválidas"
-                                                                    
     return render_template('login.html')
 
 @app.route('/dashboard')
@@ -75,8 +77,7 @@ def register():
         if password != confirm_password:
             return "Las contraseñas no coinciden"
 
-        # Hashear la contraseña antes de guardarla
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())  # Usamos bcrypt para generar el hash
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -95,6 +96,29 @@ def register():
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    if 'imagen' not in request.files:
+        return jsonify({'error': 'No se envió imagen'}), 400
+
+    imagen = request.files['imagen']
+    try:
+        img = Image.open(imagen).convert("RGB")
+        img = img.resize((224, 224))
+        img_array = img_to_array(img)
+        img_array = np.expand_dims(img_array, axis=0) / 255.0
+
+        pred = modelo.predict(img_array)
+        indice = np.argmax(pred[0])
+        confianza = float(pred[0][indice])
+
+        return jsonify({
+            "cultura": clases[indice],
+            "confianza": round(confianza, 2)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     print("Iniciando servidor Flask...")
