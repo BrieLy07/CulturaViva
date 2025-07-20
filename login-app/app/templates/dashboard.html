@@ -45,6 +45,17 @@
                     {% endif %}
                 </div>
             {% endif %}
+
+            {% if cultura and cultura != 'Desconocido' %}
+                <div style="margin-top: 15px;">
+                    <button class="btn" onclick="verUbicacion('{{ cultura }}')">Ver Ubicación</button>
+                </div>
+            {% elif cultura == 'Desconocido' %}
+                <div style="margin-top: 15px;">
+                    <button class="btn" disabled style="background-color: gray; cursor: not-allowed;">Ver Ubicación</button>
+                </div>
+            {% endif %}
+
         </div>
 
         <!-- Columna derecha -->
@@ -54,6 +65,24 @@
         </div>
         {% endif %}
     </div>
+
+        <script>
+                        function verUbicacion(cultura) {
+                let url;
+
+                if (cultura.toLowerCase() === 'afroecuatoriano') {
+                    // Ubicación específica: Valle del Chota
+                    url = 'https://www.google.com/maps/place/VALLE+DEL+CHOTA+-+EL+JUNCAL/@0.4337927,-77.9685568,17z/data=!3m1!4b1!4m6!3m5!1s0x8e2a27d0c868691d:0xb471deb7a013030e!8m2!3d0.4337873!4d-77.9659819!16s%2Fg%2F11cktv6xjz?hl=es&entry=ttu&g_ep=EgoyMDI1MDcxNi4wIKXMDSoASAFQAw%3D%3D';
+                } else {
+                    // Búsqueda general
+                    const query = encodeURIComponent(cultura + " Ecuador");
+                    url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+                }
+
+                window.open(url, '_blank');
+            }
+        </script>
+
 
 </body>
 </html>
