@@ -120,6 +120,11 @@ def predict():
 
     except Exception as e:
         return render_template('dashboard.html', cultura="Error: " + str(e), confianza=None)
+    
+@app.route('/chatbot')
+def chatbot():
+    return render_template('chatbot.html')
+
 
 if __name__ == '__main__':
     print("Iniciando servidor Flask...")

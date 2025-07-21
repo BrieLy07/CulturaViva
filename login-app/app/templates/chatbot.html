@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot Cultural</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .chat-container {
+            max-width: 700px;
+            margin: 50px auto;
+            background-color: #f3f3f3;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .chat-box {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: white;
+        }
+
+        .input-container {
+            margin-top: 10px;
+            display: flex;
+        }
+
+        .input-container input {
+            flex-grow: 1;
+            padding: 10px;
+        }
+
+        .input-container button {
+            padding: 10px;
+            margin-left: 10px;
+        }
+
+        .mensaje {
+            margin: 5px 0;
+        }
+
+        .usuario {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .bot {
+            text-align: left;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <h2>🤖 Chatbot Cultural</h2>
+        <div class="chat-box" id="chat-box">
+            <div class="mensaje bot">Hola, ¿en qué te puedo ayudar sobre esta cultura?</div>
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="mensaje" placeholder="Escribe tu pregunta...">
+            <button onclick="enviarMensaje()">Enviar</button>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <a href="{{ url_for('dashboard') }}" class="btn">⬅ Volver al Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        function enviarMensaje() {
+            const mensajeUsuario = document.getElementById('mensaje').value.trim();
+            if (!mensajeUsuario) return;
+
+            const chatBox = document.getElementById('chat-box');
+
+            const divUsuario = document.createElement('div');
+            divUsuario.className = 'mensaje usuario';
+            divUsuario.textContent = mensajeUsuario;
+            chatBox.appendChild(divUsuario);
+
+            // Simulación de respuesta (puedes reemplazar por integración real luego)
+            const divBot = document.createElement('div');
+            divBot.className = 'mensaje bot';
+            divBot.textContent = 'Gracias por tu pregunta. Estoy aprendiendo más cada día 😊';
+            chatBox.appendChild(divBot);
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            document.getElementById('mensaje').value = '';
+        }
+    </script>
+
+</body>
+</html>

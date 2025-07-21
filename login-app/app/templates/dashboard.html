@@ -50,6 +50,11 @@
                 <div style="margin-top: 15px;">
                     <button class="btn" onclick="verUbicacion('{{ cultura }}')">Ver Ubicación</button>
                 </div>
+                <div style="margin-top: 10px;">
+                    <form action="{{ url_for('chatbot') }}" method="get">
+                        <button type="submit" class="btn">Ir al ChatBot</button>
+                    </form>
+                </div>
             {% elif cultura == 'Desconocido' %}
                 <div style="margin-top: 15px;">
                     <button class="btn" disabled style="background-color: gray; cursor: not-allowed;">Ver Ubicación</button>
