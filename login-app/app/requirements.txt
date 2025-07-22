@@ -5,4 +5,5 @@ flask-session
 tensorflow
 numpy
 pillow
+python-dotenv
 

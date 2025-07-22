@@ -1,12 +1,23 @@
 import secrets
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import mysql.connector
 import os
+import requests
 import bcrypt
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
 from PIL import Image
 import numpy as np
+from dotenv import load_dotenv
+load_dotenv()
+
+import os
+HF_API_KEY = os.getenv("HF_API_KEY")
+
+PROMPT_PATH = os.path.join(os.path.dirname(__file__), "prompt_sistema.txt")
+
+with open(PROMPT_PATH, "r", encoding="utf-8") as f:
+    PROMPT_INICIAL = f.read()
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -116,14 +127,84 @@ def predict():
         else:
             cultura = clases[indice]
 
+        # 🔄 Normalización de nombres predichos
+        normalizador = {
+            'saraguro': 'saraguro',
+            'otavalos': 'otavalo',
+            'otavalo': 'otavalo',
+            'salasacas': 'salasaca',
+            'salasaca': 'salasaca',
+            'cayambis': 'cayambis',
+            'kichwa': 'kichwa amazónicos',
+            'kichwas': 'kichwa amazónicos',
+            'kichwa amazonico': 'kichwa amazónicos',
+            'kichwa amazónicos': 'kichwa amazónicos',
+            'shuar': 'shuar',
+            'achuar': 'achuar',
+            'chuar': 'achuar',
+            'afroecuatoriano': 'afroecuatoriano',
+            'afroecuatorianos': 'afroecuatoriano',
+            'cañari': 'cañari',
+            'canari': 'cañari',
+            'cañaris': 'cañari',
+            'puruhá': 'puruhá',
+            'puruhas': 'puruhá',
+            'puruhuaes': 'puruhá'
+        }
+
+        cultura_limpia = cultura.strip().lower()
+        cultura = normalizador.get(cultura_limpia, cultura_limpia)
+
         return render_template('dashboard.html', cultura=cultura, confianza=round(confianza, 2))
 
     except Exception as e:
         return render_template('dashboard.html', cultura="Error: " + str(e), confianza=None)
-    
+
+
+ #Desde aqui todo lo relacionado con el chatbot
 @app.route('/chatbot')
 def chatbot():
     return render_template('chatbot.html')
+
+
+@app.route('/responder', methods=['POST'])
+def responder():
+    data = request.get_json()
+    pregunta = data.get('mensaje', '')
+
+    #Combinar el prompt profesional + la pregunta del usuario
+    prompt_completo = PROMPT_INICIAL.strip() + f"\n\nUsuario: {pregunta}\nChatbot:"
+
+    headers = {
+        "Authorization": f"Bearer {HF_API_KEY}"
+    }
+
+    payload = {
+        "inputs": prompt_completo,
+        "parameters": {
+            "max_new_tokens": 150,
+            "temperature": 0.5,
+            "top_p": 0.85,
+            "repetition_penalty": 1.3
+        }
+    }
+
+    modelo_url = "https://api-inference.huggingface.co/models/ItsAndy0/llama3-cultural-chatbot1-v2-merged"
+
+    try:
+        response = requests.post(modelo_url, headers=headers, json=payload)
+        result = response.json()
+
+        if isinstance(result, list) and 'generated_text' in result[0]:
+            texto_generado = result[0]['generated_text']
+            respuesta = texto_generado.split('Chatbot:')[-1].strip()
+        else:
+            respuesta = "⚠️ No se pudo obtener una respuesta válida del modelo."
+    except Exception as e:
+        respuesta = f"❌ Error al contactar el modelo: {str(e)}"
+
+    return jsonify({"respuesta": respuesta})
+
 
 
 if __name__ == '__main__':
