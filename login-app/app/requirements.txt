@@ -7,3 +7,10 @@ numpy
 pillow
 python-dotenv
 
+# Para usar el modelo LLaMA 3 localmente
+# transformers
+# torch
+# huggingface-hub
+# accelerate
+
+

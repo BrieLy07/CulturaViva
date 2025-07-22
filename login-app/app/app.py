@@ -10,8 +10,11 @@ from PIL import Image
 import numpy as np
 from dotenv import load_dotenv
 load_dotenv()
+# from transformers import AutoTokenizer, AutoModelForCausalLM
+# import torch
+# from huggingface_hub import hf_hub_download  # ← por si necesitas más adelante
 
-import os
+
 HF_API_KEY = os.getenv("HF_API_KEY")
 
 PROMPT_PATH = os.path.join(os.path.dirname(__file__), "prompt_sistema.txt")
@@ -25,6 +28,63 @@ app.config['SESSION_TYPE'] = 'filesystem'
 
 clases = ['achuar', 'afroecuatoriano', 'cañari', 'cayambis', 'kickwa', 'puruhua', 'salasacas', 'saraguro', 'shuar']
 modelo = load_model("model/modelo_cultural_mobilenetv2.h5")
+
+# print("Cargando modelo LLaMA 3 desde carpeta local...")
+
+# import time
+# import torch
+# from transformers import AutoTokenizer, AutoModelForCausalLM
+
+# model_id = "ItsAndy0/llama3-cultural-chatbot1-v2-merged-fix"
+
+# max_retries = 5
+# retry_delay = 10  # segundos
+
+# for attempt in range(max_retries):
+#     try:
+#         print(f"🔄 Intento {attempt+1} de {max_retries}: cargando modelo desde Hugging Face...")
+
+#         tokenizer_llama = AutoTokenizer.from_pretrained(model_id, token=HF_API_KEY)
+
+#         if torch.cuda.is_available():
+#             print("⚙️ Cargando modelo en GPU con quantización 4bit")
+#             from transformers import BitsAndBytesConfig
+
+#             bnb_config = BitsAndBytesConfig(
+#                 load_in_4bit=True,
+#                 bnb_4bit_compute_dtype=torch.float16,
+#                 bnb_4bit_use_double_quant=True,
+#                 bnb_4bit_quant_type="nf4"
+#             )
+
+#             model_llama = AutoModelForCausalLM.from_pretrained(
+#                 model_id,
+#                 quantization_config=bnb_config,
+#                 device_map="auto",
+#                 token=HF_API_KEY
+#             )
+#         else:
+#             print("⚙️ Cargando modelo en CPU sin quantización")
+#             model_llama = AutoModelForCausalLM.from_pretrained(
+#                 model_id,
+#                 device_map={"": "cpu"},
+#                 torch_dtype=torch.float32,
+#                 token=HF_API_KEY
+#             )
+
+#         model_llama.eval()
+#         print("✅ Modelo LLaMA 3 cargado correctamente.")
+#         break
+
+#     except Exception as e:
+#         print(f"❌ Error al cargar modelo: {e}")
+#         if attempt < max_retries - 1:
+#             print(f"⏳ Reintentando en {retry_delay} segundos...\n")
+#             time.sleep(retry_delay)
+#         else:
+#             print("⛔ No se pudo cargar el modelo después de varios intentos.")
+#             raise e
+
 
 def get_db_connection():
     return mysql.connector.connect(
@@ -175,35 +235,30 @@ def responder():
     #Combinar el prompt profesional + la pregunta del usuario
     prompt_completo = PROMPT_INICIAL.strip() + f"\n\nUsuario: {pregunta}\nChatbot:"
 
-    headers = {
-        "Authorization": f"Bearer {HF_API_KEY}"
-    }
+    # try:
+    #     inputs = tokenizer_llama(prompt_completo, return_tensors="pt").to(model_llama.device)
 
-    payload = {
-        "inputs": prompt_completo,
-        "parameters": {
-            "max_new_tokens": 150,
-            "temperature": 0.5,
-            "top_p": 0.85,
-            "repetition_penalty": 1.3
-        }
-    }
+    #     output = model_llama.generate(
+    #         **inputs,
+    #         max_new_tokens=150,
+    #         temperature=0.5,
+    #         top_p=0.85,
+    #         repetition_penalty=1.3
+    #     )
 
-    modelo_url = "https://api-inference.huggingface.co/models/ItsAndy0/llama3-cultural-chatbot1-v2-merged"
+    #     respuesta_generada = tokenizer_llama.decode(output[0], skip_special_tokens=True)
 
-    try:
-        response = requests.post(modelo_url, headers=headers, json=payload)
-        result = response.json()
+    #     # Cortar hasta la parte relevante
+    #     if "Chatbot:" in respuesta_generada:
+    #         respuesta = respuesta_generada.split("Chatbot:")[-1].strip()
+    #     else:
+    #         respuesta = respuesta_generada.strip()
 
-        if isinstance(result, list) and 'generated_text' in result[0]:
-            texto_generado = result[0]['generated_text']
-            respuesta = texto_generado.split('Chatbot:')[-1].strip()
-        else:
-            respuesta = "⚠️ No se pudo obtener una respuesta válida del modelo."
-    except Exception as e:
-        respuesta = f"❌ Error al contactar el modelo: {str(e)}"
+    # except Exception as e:
+    #     respuesta = f"❌ Error en el modelo local: {str(e)}"
 
-    return jsonify({"respuesta": respuesta})
+    # return jsonify({"respuesta": respuesta})
+
 
 
 
