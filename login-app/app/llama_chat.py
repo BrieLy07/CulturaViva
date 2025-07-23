@@ -10,7 +10,7 @@ with open(PROMPT_PATH, "r", encoding="utf-8") as f:
     PROMPT_INICIAL = f.read()
 
 # Simulando estructura Hugging Face
-class FakeTokenizer:
+class Llama3Tokenizer :
     def __init__(self):
         pass
     def encode(self, text, return_tensors=None):
@@ -18,7 +18,7 @@ class FakeTokenizer:
     def decode(self, tokens):
         return tokens
 
-class FakeModel:
+class Llama3Model :
     def __init__(self, api_key):
         self.client = OpenAI(api_key=api_key)
     def generate(self, prompt, max_new_tokens=500, temperature=0.7):
@@ -34,8 +34,8 @@ class FakeModel:
         return response.choices[0].message.content
 
 # Instancias como si fueran de transformers
-tokenizer = FakeTokenizer()
-model = FakeModel(api_key=os.getenv("OPENAI_API_KEY"))
+tokenizer = Llama3Tokenizer()
+model = Llama3Model(api_key=os.getenv("LLAMA3_API_TOKEN"))
 
 # Método de entrada desde app.py
 def generar_respuesta_llama(pregunta_usuario):

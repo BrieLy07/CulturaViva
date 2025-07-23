@@ -17,7 +17,7 @@ services:
       - db
     environment:
       FLASK_ENV: development
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LLAMA3_API_TOKEN: ${LLAMA3_API_TOKEN}
 
     volumes:
       - ./app:/app
