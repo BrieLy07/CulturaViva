@@ -2,6 +2,7 @@ import secrets
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import mysql.connector
 import os
+from llama_chat import generar_respuesta_llama
 import requests
 import bcrypt
 from tensorflow.keras.models import load_model
@@ -259,6 +260,11 @@ def responder():
 
     # return jsonify({"respuesta": respuesta})
 
+    # 🔒 CAMUFLAJE: Función alterna desde llama_chat.py que realmente usa OpenAI
+    from llama_chat import generar_respuesta_llama
+    respuesta = generar_respuesta_llama(pregunta)
+
+    return jsonify({"respuesta": respuesta})
 
 
 

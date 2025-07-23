@@ -17,6 +17,8 @@ services:
       - db
     environment:
       FLASK_ENV: development
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
     volumes:
       - ./app:/app
     # - hf_cache:/root/.cache/huggingface/transformers  
