@@ -26,8 +26,13 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 app.config['SESSION_TYPE'] = 'filesystem'
 
-clases = ['achuar', 'afroecuatoriano', 'cañari', 'cayambis', 'kickwa', 'puruhua', 'salasacas', 'saraguro', 'shuar']
-modelo = load_model("model/modelo_cultural_mobilenetv2.h5")
+# Cargar modelos
+modelo_general = load_model("model/modelo_cultural_final_reforzado.h5")
+modelo_conflictivo = load_model("model/modelo_conflictivo_mobilenetv2.h5")
+
+clases_general = ['achuar', 'afroecuatoriano', 'cañari', 'cayambis', 'kickwa', 'puruhua', 'salasacas', 'saraguro', 'shuar']
+clases_conflictivas = ['cañari', 'cayambis', 'puruhua', 'salasacas']
+
 
 #try:
 # if False:
@@ -174,25 +179,38 @@ def predict():
 
     imagen = request.files['imagen']
     try:
+        from tensorflow.keras.preprocessing.image import img_to_array
+        from PIL import Image
+        import numpy as np
+
+        # Preparar imagen
         img = Image.open(imagen).convert("RGB")
         img = img.resize((224, 224))
         img_array = img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0) / 255.0
 
-        # Guardar imagen para previsualización
+        # Guardar imagen subida
         imagen_path = os.path.join("static", "ultima_imagen.png")
         img.save(imagen_path)
 
-        pred = modelo.predict(img_array)
-        indice = np.argmax(pred[0])
-        confianza = float(pred[0][indice]) * 100
+        # === Paso 1: predicción general ===
+        pred_general = modelo_general.predict(img_array)
+        idx_general = np.argmax(pred_general[0])
+        cultura_predicha = clases_general[idx_general]
+        confianza = float(pred_general[0][idx_general]) * 100
 
+        # === Paso 2: si es conflictiva, se refina ===
+        if cultura_predicha in clases_conflictivas:
+            pred_sub = modelo_conflictivo.predict(img_array)
+            idx_sub = np.argmax(pred_sub[0])
+            cultura_predicha = clases_conflictivas[idx_sub]
+            confianza = float(pred_sub[0][idx_sub]) * 100
+
+        # Límite mínimo de confianza
         if confianza < 49.0:
-            cultura = "Desconocido"
-        else:
-            cultura = clases[indice]
+            cultura_predicha = "Desconocido"
 
-        # 🔄 Normalización de nombres predichos
+        # Normalizador
         normalizador = {
             'saraguro': 'saraguro',
             'otavalos': 'otavalo',
@@ -217,10 +235,16 @@ def predict():
             'puruhuaes': 'puruhá'
         }
 
-        cultura_limpia = cultura.strip().lower()
+        cultura_limpia = cultura_predicha.strip().lower()
         cultura = normalizador.get(cultura_limpia, cultura_limpia)
 
-        return render_template('dashboard.html', cultura=cultura, confianza=round(confianza, 2))
+        if confianza < 49.0:
+            mensaje_confianza = f"{confianza:.2f} (⚠️ baja confianza)"
+        else:
+            mensaje_confianza = f"{confianza:.2f}"
+
+        return render_template('dashboard.html', cultura=cultura, confianza=mensaje_confianza)
+
 
     except Exception as e:
         return render_template('dashboard.html', cultura="Error: " + str(e), confianza=None)
