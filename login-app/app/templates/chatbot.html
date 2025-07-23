@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Chatbot Cultural</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         body {
@@ -167,16 +168,35 @@
             pointer-events: none;
         }
 
-.img-right-center {
-    position: absolute;
-    top: 50%;
-    right: 200px;
-    transform: translateY(-50%);
-    width: 400px;        /* ajusta el tamaño según necesites */
-    height: auto;
-    z-index: 0;
-    pointer-events: none;
-}
+        .img-right-center {
+            position: absolute;
+            top: 50%;
+            right: 200px;
+            transform: translateY(-50%);
+            width: 400px;        /* ajusta el tamaño según necesites */
+            height: auto;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+    @media (max-width: 768px) {
+    .img-bottom-left, .img-right-center {
+        display: none;
+    }
+    .chat-box {
+        height: 250px;
+    }
+    }
+
+    @media (max-width: 576px) {
+    .input-container {
+        flex-direction: column;
+    }
+    .input-container button {
+        width: 100%;
+    }
+    }
+
 
 
 
@@ -207,11 +227,11 @@
 <!-- Botón cerrar sesión -->
 <div class="cerrar-sesion-container">
     <form method="GET" action="{{ url_for('logout') }}">
-        <button type="submit" class="cerrar-sesion-btn">Cerrar Sesión</button>
+        <button type="submit" class="btn btn-danger cerrar-sesion-btn">Cerrar Sesión</button>
     </form>
 </div>
 
-<div class="chat-container">
+<div class="chat-container container my-5">
     <h2 style="text-align: center;">🤖 Chatbot Cultural</h2>
 
     <div class="chat-box" id="chat-box">
@@ -224,7 +244,7 @@
     </div>
 
    <div style="text-align: center; margin-top: 15px;">
-        <a href="{{ url_for('dashboard') }}" class="btn dashboard-btn">⬅ Volver al Dashboard</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary w-100 mt-3">⬅ Volver al Dashboard</a>
     </div>
 
 </div>
