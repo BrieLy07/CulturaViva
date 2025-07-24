@@ -1,11 +1,29 @@
-name: Test Actions
+name: Deploy CulturaViva DB (test5)
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - test5
+    paths:
+      - 'login-app/docker-compose.yml'
+      - 'login-app/db/init.sql'
+      - '.github/workflows/deploy-db.yml'
 
 jobs:
-  test:
+  deploy:
+    name: Deploy MySQL to EC2 (test5)
     runs-on: ubuntu-latest
+
     steps:
-      - name: ✅ Acción funcionando
-        run: echo "¡GitHub Actions está activo!"
+      - name: Deploy DB to EC2 via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_CULTURAVIVA_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_CULTURAVIVA_PEM_KEY }}
+          script: |
+            cd CulturaViva/login-app
+            git pull origin test5
+            sudo docker-compose down
+            sudo docker-compose build db
+            sudo docker-compose up -d db

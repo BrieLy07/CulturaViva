@@ -3,7 +3,7 @@ mysql-connector-python
 bcrypt
 openai
 flask-session
-tensorflow
+tensorflow-cpu
 numpy
 pillow
 python-dotenv
