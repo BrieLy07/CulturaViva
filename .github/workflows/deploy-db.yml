@@ -16,14 +16,14 @@ jobs:
           echo "${{ secrets.DB_EC2_SSH_KEY }}" | base64 -d > clave.pem
           chmod 600 clave.pem
 
-      - name: 🚀 Instalar MySQL y subir script SQL
+      - name: 🚀 Instalar MySQL y configurar acceso
         run: |
-          ssh -o StrictHostKeyChecking=no -i clave.pem ${{ secrets.DB_EC2_USER }}@${{ secrets.DB_EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i clave.pem ${{ secrets.DB_EC2_USER }}@${{ secrets.DB_EC2_HOST }} 'bash -s' <<'ENDSSH'
             sudo apt update
             sudo apt install mysql-server -y
-            sudo sed -i 's/^bind-address.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+            sudo sed -i "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mysql.conf.d/mysqld.cnf
             sudo systemctl restart mysql
-EOF
+          ENDSSH
 
       - name: 📦 Copiar script init.sql a EC2
         run: |
@@ -31,6 +31,6 @@ EOF
 
       - name: 🧩 Ejecutar script init.sql en MySQL
         run: |
-          ssh -i clave.pem -o StrictHostKeyChecking=no ${{ secrets.DB_EC2_USER }}@${{ secrets.DB_EC2_HOST }} << 'EOF'
+          ssh -i clave.pem -o StrictHostKeyChecking=no ${{ secrets.DB_EC2_USER }}@${{ secrets.DB_EC2_HOST }} 'bash -s' <<'ENDSQL'
             sudo mysql < /home/${{ secrets.DB_EC2_USER }}/init.sql
-EOF
+          ENDSQL
