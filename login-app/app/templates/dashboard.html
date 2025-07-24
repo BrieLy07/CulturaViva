@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
@@ -25,15 +26,15 @@
     <div class="dashboard-layout">
         <!-- Columna izquierda -->
         <div class="dashboard-texto">
-            <h2 class="titulo-app">¿No sabes el nombre de alguna cultura?</h2>
-            <p class="subtitulo">Sube una imagen y nosotros te ayudamos</p>
+            <h2 class="titulo-app">Reconoce la Cultura con un Click</h2>
+            <p class="subtitulo">¿Tienes una imagen? ¡Déjanos el resto!</p>
 
             <form action="{{ url_for('predict') }}" method="POST" enctype="multipart/form-data">
                 <div class="input-group">
-                    <label for="imagen">Selecciona una imagen:</label>
+                    <label for="imagen">Carga tu imagen:</label>
                     <input type="file" name="imagen" accept="image/*" required>
                 </div>
-                <button type="submit" class="btn">Predecir Imagen</button>
+                <button type="submit" class="btn">¡Dime la Cultura!</button>
             </form>
 
             {% if cultura %}
@@ -48,98 +49,122 @@
             {% endif %}
 
             {% if cultura and cultura != 'Desconocido' %}
+
+                <div style="margin-top: 10px;">
+                    <form action="{{ url_for('chatbot') }}" method="get">
+                        <button type="submit" class="btn">¡Chatea con la Cultura!</button>
+                    </form>
+                </div>
+
                 <div style="margin-top: 15px;">
-                    <button class="btn" onclick="verUbicacion('{{ cultura }}')">Ver Ubicación</button>
+                    <button class="btn" onclick="verUbicacion('{{ cultura }}')">¡Mira en Qué Parte del País Está!</button>
                 </div>
 
 
             {% if cultura and cultura != 'Desconocido' %}
+    
+           
     <div class="cultura-info tarjeta-info" style="margin-top: 25px;">
-        <h3>📖 Información Cultural Relevante:</h3>
-        {% if cultura.lower() == 'saraguro' %}
-            <ul>
-                <li>📍 Ubicados en Loja, son parte de la nacionalidad Kichwa.</li>
-                <li>👒 Su vestimenta incluye sombreros blancos y ponchos negros.</li>
-                <li>🌞 Celebran el Inti Raymi y practican medicina ancestral.</li>
-            </ul>
-            <img src="{{ url_for('static', filename='img/culturas/saraguro.jpg') }}" alt="Imagen de Saraguros" class="imagen-cultura">
-        {% elif cultura.lower() == 'otavalo' %}
-            <ul>
-                <li>🧵 Viven en Imbabura, expertos en tejido y comercio justo.</li>
-                <li>🗣️ Conservan el kichwa como lengua viva.</li>
-                <li>🎶 Reconocidos mundialmente por su música andina.</li>
-            </ul>
-            <img src="{{ url_for('static', filename='img/culturas/otavalos.jpg') }}" alt="Imagen de Otavalos" class="imagen-cultura">
-        {% elif cultura.lower() == 'salasaca' %}
-            <ul>
-                <li>🏞️ Habitan entre Tungurahua y Cotopaxi con fuerte identidad cultural.</li>
-                <li>🧶 Famosos por sus tapices y bordados hechos a mano.</li>
-                <li>🌸 Celebran el Pawkar Raymi en honor a la naturaleza.</li>
-            </ul>
-            <img src="{{ url_for('static', filename='img/culturas/salasacas.png') }}" alt="Imagen de Salasacas" class="imagen-cultura">
-        {% elif cultura.lower() == 'cayambis' %}
-            <ul>
-                <li>🗺️ Pueblo ancestral que habitó el norte de la actual Pichincha.</li>
-                <li>🧶 Reconocidos por su artesanía en textiles y cerámica.</li>
-                <li>🌄 Celebran fiestas ancestrales como el Inti Raymi y el Mushuk Nina.</li>
-            </ul>
-            <img src="{{ url_for('static', filename='img/culturas/cayambi.jpg') }}" alt="Imagen de Quitus" class="imagen-cultura">
-        {% elif cultura.lower() in ['kichwa amazónicos', 'kichwa amazonico', 'kickwa'] %}
-            <ul>
-                <li>🌿 Viven en Napo y otras zonas amazónicas.</li>
-                <li>🗣️ Hablan Kichwa del Oriente con fuerte tradición oral.</li>
-                <li>🌱 Maestros en medicina ancestral y plantas curativas.</li>
-            </ul>
-            <img src="{{ url_for('static', filename='img/culturas/kiwchas.jpg') }}" alt="Imagen de Kichwa" class="imagen-cultura">
-        {% elif cultura.lower() == 'shuar' %}
-            <ul>
-                <li>🪵 Originarios de Morona Santiago y Pastaza.</li>
-                <li>🧠 Conocidos por los rituales de las tsantsas (cabezas reducidas).</li>
-                <li>🗣️ Hablan lengua shuar, parte de la familia jívara.</li>
-            </ul>
-            <img src="{{ url_for('static', filename='img/culturas/shuar.jpg') }}" alt="Imagen de Shuar" class="imagen-cultura">
-        {% elif cultura.lower() == 'achuar' %}
-            <ul>
-                <li>🌳 Viven en Pastaza y Zamora Chinchipe, en armonía con la selva.</li>
-                <li>🏹 Practican pesca y cacería sostenible como forma de vida.</li>
-                <li>💭 Otorgan gran valor espiritual a los sueños.</li>
-            </ul>
-            <img src="{{ url_for('static', filename='img/culturas/chuar.png') }}" alt="Imagen de Achuar" class="imagen-cultura">
-        {% elif cultura.lower() == 'afroecuatoriano' %}
-            <ul>
-                <li>🎭 Presencia cultural fuerte en Esmeraldas y el Valle del Chota.</li>
-                <li>🥁 La marimba y el arrullo son símbolos de identidad afro.</li>
-                <li>🕊️ Celebran con danzas, cantos y festividades religiosas.</li>
-            </ul>
-            <img src="{{ url_for('static', filename='img/culturas/afroecuatorianos.jpg') }}" alt="Imagen de Afroecuatorianos" class="imagen-cultura">
-        {% elif cultura.strip().lower() in ['cañari', 'canari'] %}
-            <ul>
-                <li>⛰️ Civilización preincaica ubicada en Cañar y Azuay.</li>
-                <li>🏰 Su centro espiritual fue Ingapirca, adaptado por los Incas.</li>
-                <li>🌾 Conocidos por su agricultura y su resistencia cultural.</li>
-            </ul>
-            <img src="{{ url_for('static', filename='img/culturas/cañari.jpg') }}" alt="Imagen de Cañaris" class="imagen-cultura">
-        {% elif cultura.lower() == 'puruhua' %}
-            <ul>
-                <li>🌋 Pueblo originario de Chimborazo.</li>
-                <li>👘 Vestimenta característica en rojo y negro.</li>
-                <li>📖 Conservan leyendas como la de Mama Huanacauri.</li>
-            </ul>
-            <img src="{{ url_for('static', filename='img/culturas/puruhuas.jpg') }}" alt="Imagen de Puruhuaes" class="imagen-cultura">
-        {% else %}
-            <p>No se encontró información detallada para esta cultura.</p>
-        {% endif %}
-    </div>
+    <h3>📖 Lo Más Cool de Nuestra Cultura</h3>
+    {% if cultura.lower() == 'saraguro' %}
+        <div>
+            <p>📍 Ubicados en Loja, pertenecen al pueblo Kichwa y mantienen una organización comunitaria fuerte.</p>
+            <p>🧑‍🎓 Reconocidos por su liderazgo en educación intercultural y defensa de los derechos indígenas.</p>
+            <p>👒 Su vestimenta elegante en blanco y negro refleja espiritualidad y sabiduría ancestral.</p>
+            <p>🌞 Celebran el Inti Raymi con danzas, rituales solares y limpieza espiritual.</p>
+        </div>
+        <img src="{{ url_for('static', filename='img/culturas/saraguro.jpg') }}" alt="Imagen de Saraguros" class="imagen-cultura">
+
+    {% elif cultura.lower() == 'otavalo' %}
+        <div>
+            <p>🧵 Pueblo kichwa de Imbabura, ícono del arte textil y el comercio justo a nivel mundial.</p>
+            <p>🎼 Famosos por su música andina con grupos como Ñanda Mañachi y Yarina.</p>
+            <p>🛍️ Su mercado artesanal en la Plaza de Ponchos es uno de los más grandes de Sudamérica.</p>
+            <p>🗣️ Preservan el idioma kichwa y transmiten conocimientos de generación en generación.</p>
+        </div>
+        <img src="{{ url_for('static', filename='img/culturas/otavalos.jpg') }}" alt="Imagen de Otavalos" class="imagen-cultura">
+
+    {% elif cultura.lower() == 'salasaca' %}
+        <div>
+            <p>🏞️ Ubicados entre Tungurahua y Cotopaxi, conocidos por su lucha por la autonomía cultural.</p>
+            <p>🧶 Especialistas en tapices simbólicos que narran historias míticas y cosmovisión andina.</p>
+            <p>🌸 Celebran el Pawkar Raymi (fiesta del florecimiento) con música y rituales agrícolas.</p>
+            <p>⚖️ Su estructura comunal promueve justicia propia y toma de decisiones en asambleas.</p>
+        </div>
+        <img src="{{ url_for('static', filename='img/culturas/salasacas.png') }}" alt="Imagen de Salasacas" class="imagen-cultura">
+
+    {% elif cultura.lower() == 'cayambis' %}
+        <div>
+            <p>🗺️ Pueblo preincaico del norte de Pichincha con una historia de resistencia a la colonización.</p>
+            <p>🧶 Conservan técnicas ancestrales en cerámica y textiles con símbolos espirituales.</p>
+            <p>🌄 Practican fiestas como el Inti Raymi y el Mushuk Nina para renovar la energía colectiva.</p>
+            <p>🏹 Sus rituales y cosmovisión están ligados al respeto por la tierra (Pachamama).</p>
+        </div>
+        <img src="{{ url_for('static', filename='img/culturas/cayambi.jpg') }}" alt="Imagen de Cayambis" class="imagen-cultura">
+
+    {% elif cultura.lower() in ['kichwa amazónicos', 'kichwa amazonico', 'kickwa'] %}
+        <div>
+            <p>🌿 Viven en la Amazonía ecuatoriana (Napo, Orellana, Pastaza), conectados con la selva.</p>
+            <p>🗣️ Hablan kichwa amazónico y transmiten el saber oral por medio de mitos y relatos.</p>
+            <p>🌱 Son guardianes del conocimiento ancestral de las plantas medicinales.</p>
+            <p>🔥 Realizan rituales con ayahuasca y defienden la selva de amenazas extractivistas.</p>
+        </div>
+        <img src="{{ url_for('static', filename='img/culturas/kiwchas.jpg') }}" alt="Imagen de Kichwa" class="imagen-cultura">
+
+    {% elif cultura.lower() == 'shuar' %}
+        <div>
+            <p>🪵 Pueblo ancestral de la Amazonía sur (Morona Santiago y Pastaza).</p>
+            <p>💀 Famosos por su rito de reducción de cabezas (tsantsas), símbolo de fuerza espiritual.</p>
+            <p>🛡️ Guerreros históricos que nunca fueron conquistados por los Incas ni por los españoles.</p>
+            <p>🌊 Viven en armonía con los ríos y creen en el Arutam, espíritu protector del guerrero.</p>
+        </div>
+        <img src="{{ url_for('static', filename='img/culturas/shuar.jpg') }}" alt="Imagen de Shuar" class="imagen-cultura">
+
+    {% elif cultura.lower() == 'achuar' %}
+        <div>
+            <p>🌳 Pueblo amazónico entre Ecuador y Perú, con estilo de vida seminomádico.</p>
+            <p>🏹 Practican pesca, caza y agricultura sustentable con respeto por el equilibrio natural.</p>
+            <p>💭 La interpretación de sueños guía sus decisiones personales y comunitarias.</p>
+            <p>📿 Tienen una visión espiritual del mundo basada en la conexión con los seres de la selva.</p>
+        </div>
+        <img src="{{ url_for('static', filename='img/culturas/chuar.png') }}" alt="Imagen de Achuar" class="imagen-cultura">
+
+    {% elif cultura.lower() == 'afroecuatoriano' %}
+        <div>
+            <p>🎭 Presencia cultural vibrante en Esmeraldas y el Valle del Chota.</p>
+            <p>🥁 La marimba, el arrullo y la bomba son expresiones afro declaradas patrimonio cultural.</p>
+            <p>👑 Su historia está marcada por la resistencia, el arte, la identidad y la libertad.</p>
+            <p>🕊️ Conservan rituales sincréticos entre religiones africanas y catolicismo popular.</p>
+        </div>
+        <img src="{{ url_for('static', filename='img/culturas/afroecuatorianos.jpg') }}" alt="Imagen de Afroecuatorianos" class="imagen-cultura">
+
+    {% elif cultura.strip().lower() in ['cañari', 'canari'] %}
+        <div>
+            <p>⛰️ Pueblo preincaico del Azuay y Cañar con fuerte herencia espiritual e histórica.</p>
+            <p>🏰 Ingapirca, su templo sagrado, fue adaptado por los Incas como centro de poder dual.</p>
+            <p>🧭 Resistieron con inteligencia y pactos estratégicos la invasión incaica.</p>
+            <p>🌾 Expertos en terrazas agrícolas, astronomía y calendarios solares/lunares.</p>
+        </div>
+        <img src="{{ url_for('static', filename='img/culturas/cañari.jpg') }}" alt="Imagen de Cañaris" class="imagen-cultura">
+
+    {% elif cultura.lower() == 'puruhua' %}
+        <div>
+            <p>🌋 Pueblo originario de Chimborazo con raíces milenarias en el altiplano andino.</p>
+            <p>👘 Usan vestimenta rojo y negro que representa fuerza y conexión con la tierra.</p>
+            <p>📖 Transmiten leyendas como la de Mama Huanacauri, símbolo de resistencia femenina.</p>
+            <p>🎉 Celebran fiestas del agua, el maíz y la cosecha con música, danza y fuego ceremonial.</p>
+        </div>
+        <img src="{{ url_for('static', filename='img/culturas/puruhuas.jpg') }}" alt="Imagen de Puruhuas" class="imagen-cultura">
+
+    {% else %}
+        <p>No se encontró información detallada para esta cultura.</p>
+    {% endif %}
+</div>
+
+
 {% endif %}
 
-
-
-
-                <div style="margin-top: 10px;">
-                    <form action="{{ url_for('chatbot') }}" method="get">
-                        <button type="submit" class="btn">Ir al ChatBot</button>
-                    </form>
-                </div>
+                
             {% elif cultura == 'Desconocido' %}
                 <div style="margin-top: 15px;">
                     <button class="btn" disabled style="background-color: gray; cursor: not-allowed;">Ver Ubicación</button>
@@ -172,7 +197,6 @@
                 window.open(url, '_blank');
             }
         </script>
-
 
 </body>
 </html>

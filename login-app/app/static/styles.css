@@ -244,6 +244,75 @@ img.imagen-predicha {
 }
 
 
+/* 🔽 AJUSTES GLOBALES PARA PANTALLAS PEQUEÑAS (MÓVILES) */
+@media (max-width: 768px) {
 
+    body {
+        padding: 10px;
+    }
 
+    .btn, .cerrar-sesion-btn {
+        font-size: 16px;
+        padding: 12px;
+        width: 100%;
+        margin: 10px 0;
+    }
 
+    .login-container,
+    .register-form {
+        padding: 15px;
+        width: 95%;
+        margin: 0 auto;
+    }
+
+    .register-layout {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .imagen-registro {
+        max-width: 100%;
+    }
+
+    .dashboard-layout {
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+    }
+
+    .dashboard-texto, .dashboard-imagen {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        text-align: center;
+    }
+
+    img.imagen-predicha {
+        max-width: 90vw;
+        left: 0;
+        border-width: 3px;
+    }
+
+    .tarjeta-info {
+        font-size: 15px;
+        padding: 12px;
+        margin-top: 15px;
+    }
+
+    .input-group input, .input-group label {
+        font-size: 15px;
+    }
+
+    .encabezado h2, .titulo-app {
+        font-size: 20px;
+    }
+
+    .subtitulo {
+        font-size: 15px;
+    }
+
+    .chat-container, .respuesta, .entrada {
+        max-width: 100%;
+        font-size: 15px;
+    }
+}

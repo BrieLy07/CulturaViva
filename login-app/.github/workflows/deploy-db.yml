@@ -1,0 +1,44 @@
+name: Desplegar Base de Datos en EC2
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-db:
+    name: Instalar MySQL y crear login_db
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔐 Configurar clave SSH
+        run: |
+          echo "${{ secrets.DB_EC2_SSH_KEY }}" | base64 -d > clave.pem
+          chmod 600 clave.pem
+
+      - name: ⚙️ Instalar MySQL y crear base
+        run: |
+          ssh -o StrictHostKeyChecking=no -i clave.pem ${{ secrets.DB_EC2_USER }}@${{ secrets.DB_EC2_HOST }} << 'EOF'
+            sudo apt update
+            sudo apt install mysql-server -y
+
+            sudo sed -i 's/^bind-address.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+            sudo systemctl restart mysql
+
+            sudo mysql <<EOSQL
+CREATE DATABASE IF NOT EXISTS login_db;
+USE login_db;
+
+CREATE USER IF NOT EXISTS 'admin'@'%' IDENTIFIED BY 'Admin123*';
+GRANT ALL PRIVILEGES ON login_db.* TO 'admin'@'%';
+FLUSH PRIVILEGES;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  phone VARCHAR(50),
+  username VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL
+);
+EOSQL
+          EOF

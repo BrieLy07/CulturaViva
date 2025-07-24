@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot Cultural</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
@@ -142,7 +143,8 @@
 
         .dashboard-btn {
             display: inline-block;
-            width: 500px;               /* ✅ Fuerza un ancho fijo */
+            width: 200px;               /* ✅ Fuerza un ancho fijo */
+            max-width: 500px; /* 👍 límite en pantallas grandes */
             padding: 10px;
             background-color: #006aff;
             color: white;
@@ -167,20 +169,35 @@
             pointer-events: none;
         }
 
-.img-right-center {
-    position: absolute;
-    top: 50%;
-    right: 200px;
-    transform: translateY(-50%);
-    width: 400px;        /* ajusta el tamaño según necesites */
-    height: auto;
-    z-index: 0;
-    pointer-events: none;
-}
+        .img-right-center {
+            position: absolute;
+            top: 50%;
+            right: 200px;
+            transform: translateY(-50%);
+            width: 400px;        /* ajusta el tamaño según necesites */
+            height: auto;
+            z-index: 0;
+            pointer-events: none;
+        }
 
+        /* 🔧 Posicionar las imágenes como fondo decorativo detrás del contenido */
+        .img-bottom-left,
+        .img-right-center {
+            position: fixed;
+            z-index: -1;
+            opacity: 0.3; /* opcional: para que no distraigan */
+        }
 
+        @media (max-width: 768px) {
+            .img-bottom-left,
+            .img-right-center {
+                display: none; /* oculta en móviles para evitar sobreposición */
+            }
 
-
+            .chat-container {
+                margin: 20px 10px;
+            }
+        }
 
     </style>
 </head>
