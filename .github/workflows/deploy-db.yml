@@ -1,36 +1,11 @@
-name: Desplegar Base de Datos de cultura viva
+name: Test Actions
 
 on:
   workflow_dispatch:
 
 jobs:
-  deploy-db:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📥 Clonar repositorio
-        uses: actions/checkout@v3
-
-      - name: 🔐 Configurar clave SSH
-        run: |
-          echo "${{ secrets.DB_EC2_SSH_KEY }}" | base64 -d > clave.pem
-          chmod 600 clave.pem
-
-      - name: 🚀 Instalar MySQL y configurar acceso
-        run: |
-          ssh -o StrictHostKeyChecking=no -i clave.pem ${{ secrets.DB_EC2_USER }}@${{ secrets.DB_EC2_HOST }} 'bash -s' <<'ENDSSH'
-            sudo apt update
-            sudo apt install mysql-server -y
-            sudo sed -i "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mysql.conf.d/mysqld.cnf
-            sudo systemctl restart mysql
-          ENDSSH
-
-      - name: 📦 Copiar script init.sql a EC2
-        run: |
-          scp -i clave.pem -o StrictHostKeyChecking=no login-app/db/init.sql ${{ secrets.DB_EC2_USER }}@${{ secrets.DB_EC2_HOST }}:/home/${{ secrets.DB_EC2_USER }}/init.sql
-
-      - name: 🧩 Ejecutar script init.sql en MySQL
-        run: |
-          ssh -i clave.pem -o StrictHostKeyChecking=no ${{ secrets.DB_EC2_USER }}@${{ secrets.DB_EC2_HOST }} 'bash -s' <<'ENDSQL'
-            sudo mysql < /home/${{ secrets.DB_EC2_USER }}/init.sql
-          ENDSQL
+      - name: ✅ Acción funcionando
+        run: echo "¡GitHub Actions está activo!"
