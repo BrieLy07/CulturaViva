@@ -1,0 +1,31 @@
+name: Deploy CulturaViva Web (test5)
+
+on:
+  push:
+    branches:
+      - test5
+    paths:
+      - 'login-app/app/**'
+      - 'login-app/requirements.txt'
+      - 'login-app/.env'
+      - 'login-app/docker-compose.yml'
+      - '.github/workflows/deploy-web.yml'
+
+jobs:
+  deploy:
+    name: Deploy Flask Web to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Web to EC2 via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_CULTURAVIVA_WEB_IP2 }}
+          username: ubuntu
+          key: ${{ secrets.EC2_CULTURAVIVA_WEB_PEM_KEY }}
+          script: |
+            cd CulturaViva/login-app
+            git pull origin test5
+            sudo docker-compose down web
+            sudo docker-compose build web
+            sudo docker-compose up -d web
