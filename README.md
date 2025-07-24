@@ -111,4 +111,4 @@ Abre tu navegador en `http://localhost:5000`
 
 ## Autor
 
-Desarrollado por Briely07 y AndyDev
+Desarrollado por Briely07 y AndyDev.
