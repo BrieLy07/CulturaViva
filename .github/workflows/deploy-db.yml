@@ -1,4 +1,4 @@
-name: Desplegar Base de Datos en EC2
+name: Desplegar Base de Datos de cultura viva
 
 on:
   workflow_dispatch:
