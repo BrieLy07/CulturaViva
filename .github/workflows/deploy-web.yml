@@ -1,4 +1,4 @@
-name: Deploy CulturaViva Web (test5)
+name: Deploy CulturaViva Web
 
 on:
   push:
