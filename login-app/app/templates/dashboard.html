@@ -48,7 +48,7 @@
                 </div>
             {% endif %}
 
-            {% if cultura and cultura != 'Desconocido' %}
+            {% if cultura and cultura != 'desconocido' %}
     <div style="margin-top: 10px;">
         <form action="{{ url_for('chatbot') }}" method="get">
             <button type="submit" class="btn">¡Chatea con la Cultura!</button>
@@ -155,7 +155,7 @@
             <p>No se encontró información detallada para esta cultura.</p>
         {% endif %}
     </div>
-{% elif cultura == 'Desconocido' %}
+{% elif cultura == 'desconocido' %}
     <div style="margin-top: 15px;">
         <button class="btn" disabled style="background-color: gray; cursor: not-allowed;">Ver Ubicación</button>
     </div>
