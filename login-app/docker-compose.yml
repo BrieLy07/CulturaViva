@@ -14,12 +14,8 @@ services:
     build: ./app
     ports:
       - "5000:5000"
-    depends_on:
-      - db
-    environment:
-      FLASK_ENV: development
-      LLAMA3_API_TOKEN: ${LLAMA3_API_TOKEN}
-
+    env_file:
+      - .env
     volumes:
       - ./app:/app
     # - hf_cache:/root/.cache/huggingface/transformers  
