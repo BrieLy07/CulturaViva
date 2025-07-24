@@ -60,11 +60,12 @@
                     <button class="btn" onclick="verUbicacion('{{ cultura }}')">¡Mira en Qué Parte del País Está!</button>
                 </div>
 
+            
+        
 
-            {% endif %}
 
     
-           
+            {% if cultura and cultura != 'Desconocido' %}      
     <div class="cultura-info tarjeta-info" style="margin-top: 25px;">
     <h3>📖 Lo Más Cool de Nuestra Cultura</h3>
     {% if cultura.lower() == 'saraguro' %}
@@ -165,12 +166,7 @@
 
 {% endif %}
 
-                
-            {% elif cultura == 'Desconocido' %}
-                <div style="margin-top: 15px;">
-                    <button class="btn" disabled style="background-color: gray; cursor: not-allowed;">Ver Ubicación</button>
-                </div>
-            {% endif %}
+            
 
         </div>
 
