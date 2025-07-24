@@ -18,9 +18,9 @@ jobs:
       - name: Deploy DB to EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_CULTURAVIVA_IP }}
+          host: ${{ secrets.EC2_CULTURAVIVA_IP}}
           username: ubuntu
-          key: ${{ secrets.EC2_CULTURAVIVA_PEM_KEY }}
+          key: ${{ secrets.EC2_CULTURAVIVA_PEM_KEY}}
           script: |
             cd CulturaViva/login-app
             git pull origin test5

@@ -20,9 +20,9 @@ jobs:
       - name: Deploy Web to EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_CULTURAVIVA_WEB_IP2 }}
+          host: ${{ secrets.EC2_CULTURAVIVA_IP2}}
           username: ubuntu
-          key: ${{ secrets.EC2_CULTURAVIVA_WEB_PEM_KEY }}
+          key: ${{ secrets.EC2_CULTURAVIVA_PEM_KEY }}
           script: |
             cd CulturaViva/login-app
             git pull origin test5
