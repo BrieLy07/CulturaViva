@@ -28,6 +28,6 @@ jobs:
           script: |
             cd CulturaViva/login-app
             git pull origin test5
-            sudo docker-compose down web
-            sudo docker-compose build web
+            sudo docker-compose down --rmi all  
+            sudo docker-compose build --no-cache web  
             sudo docker-compose up -d web
