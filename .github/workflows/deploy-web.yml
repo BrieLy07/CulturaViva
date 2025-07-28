@@ -10,6 +10,8 @@ on:
       - 'login-app/.env'
       - 'login-app/docker-compose.yml'
       - '.github/workflows/deploy-web.yml'
+      - 'login-app/Dockerfile'
+
 
 jobs:
   deploy:
