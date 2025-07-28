@@ -103,14 +103,23 @@ def get_db_connection():
     )
 
 def predecir_yolo(imagen):
-    imagen_path = os.path.join("static", "ultima_imagen_yolo.png")
-    imagen.save(imagen_path)  # Guardamos para que YOLO la lea
+    from PIL import Image
 
+    imagen_path = os.path.join("static", "ultima_imagen_yolo.png")
+
+    # 🛠️ Convertir y redimensionar para que sea igual al input del modelo
+    imagen = imagen.convert("RGB").resize((512, 512))
+    imagen.save(imagen_path)
+
+    # ✅ Hacer la predicción
     resultados = modelo_yolo(imagen_path)
+
+    # 🔍 Obtener clase y confianza
     nombre_clase = resultados[0].names[int(resultados[0].probs.top1)]
     confianza = float(resultados[0].probs.top1conf) * 100
 
     return nombre_clase, confianza
+
 
 @app.route('/')
 def index():
@@ -195,9 +204,8 @@ def predict():
         imagen.save(imagen_path)
 
         # Usar el modelo YOLO para clasificar
-        resultados = modelo_yolo(imagen_path)
-        clase = resultados[0].names[int(resultados[0].probs.top1)]
-        confianza = float(resultados[0].probs.top1conf) * 100
+        clase, confianza = predecir_yolo(Image.open(imagen_path))
+
 
         # Normalizador
         normalizador = {
@@ -233,6 +241,9 @@ def predict():
             cultura = "Desconocido"
         else:
             mensaje_confianza = f"{confianza:.2f}"
+        
+        # 🖨️ Mostrar en consola para pruebas
+        print(f"🧠 Cultura: {cultura} | Confianza: {mensaje_confianza}")
 
         return render_template('dashboard.html', cultura=cultura, confianza=mensaje_confianza)
 
