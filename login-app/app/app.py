@@ -1,14 +1,12 @@
 import secrets
+from ultralytics import YOLO
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import mysql.connector
 import os
 from llama_chat import generar_respuesta_llama
 import requests
 import bcrypt
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import img_to_array
 from PIL import Image
-import numpy as np
 from dotenv import load_dotenv
 load_dotenv()
 # from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -27,8 +25,7 @@ app.secret_key = secrets.token_hex(16)
 app.config['SESSION_TYPE'] = 'filesystem'
 
 # Cargar modelos
-modelo_general = load_model("model/modelo_cultural_final_reforzado.h5")
-modelo_conflictivo = load_model("model/modelo_conflictivo_mobilenetv2.h5")
+modelo_yolo = YOLO("model/modelo_yolo_mejorado.pt")
 
 clases_general = ['achuar', 'afroecuatoriano', 'cañari', 'cayambis', 'kickwa', 'puruhua', 'salasacas', 'saraguro', 'shuar']
 clases_conflictivas = ['cañari', 'cayambis', 'puruhua', 'salasacas']
@@ -105,6 +102,16 @@ def get_db_connection():
         database=os.getenv("DB_NAME")
     )
 
+def predecir_yolo(imagen):
+    imagen_path = os.path.join("static", "ultima_imagen_yolo.png")
+    imagen.save(imagen_path)  # Guardamos para que YOLO la lea
+
+    resultados = modelo_yolo(imagen_path)
+    nombre_clase = resultados[0].names[int(resultados[0].probs.top1)]
+    confianza = float(resultados[0].probs.top1conf) * 100
+
+    return nombre_clase, confianza
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -180,36 +187,17 @@ def predict():
 
     imagen = request.files['imagen']
     try:
-        from tensorflow.keras.preprocessing.image import img_to_array
         from PIL import Image
-        import numpy as np
+        import os
 
-        # Preparar imagen
-        img = Image.open(imagen).convert("RGB")
-        img = img.resize((224, 224))
-        img_array = img_to_array(img)
-        img_array = np.expand_dims(img_array, axis=0) / 255.0
+        # Guardar imagen en disco para que YOLO pueda leerla
+        imagen_path = os.path.join("static", "ultima_imagen_yolo.png")
+        imagen.save(imagen_path)
 
-        # Guardar imagen subida
-        imagen_path = os.path.join("static", "ultima_imagen.png")
-        img.save(imagen_path)
-
-        # === Paso 1: predicción general ===
-        pred_general = modelo_general.predict(img_array)
-        idx_general = np.argmax(pred_general[0])
-        cultura_predicha = clases_general[idx_general]
-        confianza = float(pred_general[0][idx_general]) * 100
-
-        # === Paso 2: si es conflictiva, se refina ===
-        if cultura_predicha in clases_conflictivas:
-            pred_sub = modelo_conflictivo.predict(img_array)
-            idx_sub = np.argmax(pred_sub[0])
-            cultura_predicha = clases_conflictivas[idx_sub]
-            confianza = float(pred_sub[0][idx_sub]) * 100
-
-        # Límite mínimo de confianza
-        if confianza < 49.0:
-            cultura_predicha = "Desconocido"
+        # Usar el modelo YOLO para clasificar
+        resultados = modelo_yolo(imagen_path)
+        clase = resultados[0].names[int(resultados[0].probs.top1)]
+        confianza = float(resultados[0].probs.top1conf) * 100
 
         # Normalizador
         normalizador = {
@@ -236,19 +224,20 @@ def predict():
             'puruhuaes': 'puruhá'
         }
 
-        cultura_limpia = cultura_predicha.strip().lower()
+        cultura_limpia = clase.strip().lower()
         cultura = normalizador.get(cultura_limpia, cultura_limpia)
 
         if confianza < 49.0:
             mensaje_confianza = f"{confianza:.2f} (⚠️ baja confianza)"
+            cultura = "Desconocido"
         else:
             mensaje_confianza = f"{confianza:.2f}"
 
         return render_template('dashboard.html', cultura=cultura, confianza=mensaje_confianza)
 
-
     except Exception as e:
         return render_template('dashboard.html', cultura="Error: " + str(e), confianza=None)
+
 
 
  #Desde aqui todo lo relacionado con el chatbot

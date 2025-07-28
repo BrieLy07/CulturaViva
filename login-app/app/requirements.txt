@@ -3,10 +3,9 @@ mysql-connector-python
 bcrypt
 openai
 flask-session
-tensorflow-cpu
-numpy
 pillow
 python-dotenv
+ultralytics
 
 # Para usar el modelo LLaMA 3 localmente
 # transformers
