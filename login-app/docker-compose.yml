@@ -15,9 +15,7 @@ services:
     ports:
       - "5000:5000"
     env_file:
-      - .env
-    volumes:
-    # - hf_cache:/root/.cache/huggingface/transformers  
+      - .env 
     restart: always
 
 
