@@ -25,7 +25,7 @@ app.secret_key = secrets.token_hex(16)
 app.config['SESSION_TYPE'] = 'filesystem'
 
 # Cargar modelos
-modelo_yolo = YOLO("model/modelo_yolo_mejorado.pt")
+modelo_yolo = YOLO("model/modelo_yolo_final2.pt")
 
 clases_general = ['achuar', 'afroecuatoriano', 'cañari', 'cayambis', 'kickwa', 'puruhua', 'salasacas', 'saraguro', 'shuar']
 clases_conflictivas = ['cañari', 'cayambis', 'puruhua', 'salasacas']
@@ -221,7 +221,8 @@ def predict():
             'cañaris': 'cañari',
             'puruhá': 'puruhá',
             'puruhas': 'puruhá',
-            'puruhuaes': 'puruhá'
+            'puruhuaes': 'puruhá',
+            'natabuela': 'natabuela'
         }
 
         cultura_limpia = clase.strip().lower()
