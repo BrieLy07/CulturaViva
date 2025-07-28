@@ -16,7 +16,7 @@ WORKDIR /app
 # Instalar torch primero (CPU compatible)
 # RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 
-# Instala la librería necesaria para evitar el error libGL.so.1.
+# Instala la librería necesaria para evitar el error libGL.so.1
 RUN apt-get update && apt-get install -y libgl1
 
 # Instalar el resto
