@@ -103,25 +103,27 @@ def get_db_connection():
     )
 
 def predecir_yolo(imagen):
-    from PIL import Image
+    import os
     import torch
+    from PIL import Image
 
-    imagen_path = os.path.join("static", "ultima_imagen_yolo.png")
+    imagen_path = os.path.join("static", "ultima_imagen_yolo.jpg")
 
-    # ✅ Redimensionar como durante entrenamiento
+    if os.path.exists(imagen_path):
+        os.remove(imagen_path)
+
     imagen = imagen.convert("RGB").resize((512, 512))
-    imagen.save(imagen_path)
+    imagen.save(imagen_path, format="JPEG")
 
-    # ✅ Usar .predict como en Colab
     resultados = modelo_yolo.predict(source=imagen_path, verbose=False)
-
-    # ✅ Obtener clase y confianza
     predicciones = resultados[0].probs.data
+
     clase_idx = torch.argmax(predicciones).item()
     confianza = float(predicciones[clase_idx]) * 100
     nombre_clase = modelo_yolo.names[clase_idx]
 
     return nombre_clase, confianza
+
 
 
 
