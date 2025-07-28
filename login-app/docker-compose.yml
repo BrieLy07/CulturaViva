@@ -17,7 +17,6 @@ services:
     env_file:
       - .env
     volumes:
-      - ./app:/app
     # - hf_cache:/root/.cache/huggingface/transformers  
     restart: always
 
