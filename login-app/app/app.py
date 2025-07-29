@@ -237,7 +237,8 @@ def predict():
             'puruhas': 'puruhá',
             'puruhuaes': 'puruhá',
             'natabuela': 'natabuela',
-            'no_cultural': 'no_cultural'
+            'no_cultural': 'desconocido',
+            'no_cultura': 'desconocido'
         }
 
         cultura_limpia = clase.strip().lower()
@@ -245,7 +246,7 @@ def predict():
 
         if clase.strip().lower() == "no_cultural" or confianza < 70.0:
             mensaje_confianza = f"{confianza:.2f} (❌ no reconocido)"
-            cultura = "Desconocido"
+            cultura = "desconocido"
         else:
             mensaje_confianza = f"{confianza:.2f}"
 
