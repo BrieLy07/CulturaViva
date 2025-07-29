@@ -243,14 +243,12 @@ def predict():
         cultura_limpia = clase.strip().lower()
         cultura = normalizador.get(cultura_limpia, cultura_limpia)
 
-        if clase.strip().lower() == "no_cultural":
-            mensaje_confianza = f"{confianza:.2f} (🧩 fuera del dataset)"
-            cultura = "desconocido"
-        elif confianza < 49.0:
-            mensaje_confianza = f"{confianza:.2f} (⚠️ baja confianza)"
-            cultura = "desconocido"
+        if clase.strip().lower() == "no_cultural" or confianza < 70.0:
+            mensaje_confianza = f"{confianza:.2f} (❌ no reconocido)"
+            cultura = "Desconocido"
         else:
             mensaje_confianza = f"{confianza:.2f}"
+
 
         
         # 🖨️ Mostrar en consola para pruebas
