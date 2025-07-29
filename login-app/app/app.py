@@ -236,17 +236,22 @@ def predict():
             'puruhá': 'puruhá',
             'puruhas': 'puruhá',
             'puruhuaes': 'puruhá',
-            'natabuela': 'natabuela'
+            'natabuela': 'natabuela',
+            'no_cultural': 'no_cultural'
         }
 
         cultura_limpia = clase.strip().lower()
         cultura = normalizador.get(cultura_limpia, cultura_limpia)
 
-        if confianza < 49.0:
+        if clase.strip().lower() == "no_cultural":
+            mensaje_confianza = f"{confianza:.2f} (🧩 fuera del dataset)"
+            cultura = "desconocido"
+        elif confianza < 49.0:
             mensaje_confianza = f"{confianza:.2f} (⚠️ baja confianza)"
-            cultura = "Desconocido"
+            cultura = "desconocido"
         else:
             mensaje_confianza = f"{confianza:.2f}"
+
         
         # 🖨️ Mostrar en consola para pruebas
         print(f"🧠 Cultura: {cultura} | Confianza: {mensaje_confianza}")
